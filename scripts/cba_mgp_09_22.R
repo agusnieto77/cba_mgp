@@ -4,6 +4,8 @@
 require(tidyverse)
 require(tidyr)
 require(readxl)
+require(formattable)
+require(kableExtra)
 
 # Bases de datos ----------------------------------------------------------
 
@@ -32,14 +34,23 @@ mdp_cba_resumen <- mdp_cba_resumen |> mutate(media_ar_t_mes = media_ar_t*pampean
 mdp_cba_resumen <- mdp_cba_resumen |> mutate(media_geom_mes = media_geom*pampeana)
 
 
-mdp_cba_resumen |> summarise(
+(estadisticas <- mdp_cba_resumen |> summarise(
   mediana     = sum(mediana_mes),
-  media_arit  = sum(media_arit_mes),
-  media_ar_tr = sum(media_ar_t_mes),
-  media_geom  = sum(media_geom_mes)
-) |> pivot_longer(cols = mediana:media_geom) |> 
-  rename(estadisticas = name, resultados = value)
+  `media aritmética`  = sum(media_arit_mes),
+  `media aritmética truncada` = sum(media_ar_t_mes),
+  `media geométrica`  = sum(media_geom_mes)
+) |> pivot_longer(cols = mediana:`media geométrica`) |> 
+  rename(Estadísticas = name, Resultados = value))
 
+
+estadisticas$Resultados <- color_bar("lightgreen")(estadisticas$Resultados)
+
+kbl(estadisticas, escape = F) |> 
+  kable_styling(font_size = 22) |> 
+  kable_paper("hover", full_width = F) |>
+  column_spec(2, width = "5cm") |>
+  add_header_above(c("Índices de Precios | Septiembre 22" = 2))
+ 
 
 tibble(
   hogar = c('3 integrantes', '4 integrantes', '5 integrantes'),
